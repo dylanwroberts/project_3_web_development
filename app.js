@@ -10,17 +10,36 @@ const db = new sqlite3.Database(
 
 app.get('/codes', (req, res) => {
   db.all('SELECT * FROM Codes', (err, codes) => {
-    let result = {};
-    //loop through all codes
-    for (code in codes) {
-      //create a key-value pair for the code in format: "C + code": "incident_type"
-      result[`C${codes[code].code}`] = codes[code].incident_type;
+    if (err) {
+      console.error(err);
+    } else {
+      let result = {};
+      //loop through all codes
+      for (code in codes) {
+        //create a key-value pair for the code in format: "C + code": "incident_type"
+        result[`C${codes[code].code}`] = codes[code].incident_type;
+      }
+      res.send(result);
     }
-    res.send(result);
   });
 });
 
-app.get('/neighborhoods', (req, res) => {});
+app.get('/neighborhoods', (req, res) => {
+  db.all('SELECT * FROM Neighborhoods', (err, neighborhoods) => {
+    if (err) {
+      console.error(err);
+    } else {
+      let result = {};
+      //loop through all codes
+      for (neighborhood in neighborhoods) {
+        //create a key-value pair for the neighborhood in format: "N + neighborhood_number": "neighborhood_name"
+        result[`N${neighborhoods[neighborhood].neighborhood_number}`] =
+          neighborhoods[neighborhood].neighborhood_name;
+      }
+      res.send(result);
+    }
+  });
+});
 
 app.get('/incidents', (req, res) => {});
 
