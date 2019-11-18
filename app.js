@@ -15,13 +15,24 @@ app.get('/codes', (req, res) => {
     if (err) {
       console.error(err);
     } else {
-      let result = {};
-      //loop through all codes
+      let results = {};
+
       for (code in codes) {
-        //create a key-value pair for the code in format: "C + code": "incident_type"
-        result[`C${codes[code].code}`] = codes[code].incident_type;
+        let current = codes[code];
+        results[`C${current.code}`] = current.incident_type;
       }
-      res.send(result);
+
+      if (req.query.code) {
+        let include = req.query.code.split(',');
+
+        for (result in results) {
+          if (!include.includes(result)) {
+            delete results[result];
+          }
+        }
+      }
+
+      res.send(results);
     }
   });
 });
