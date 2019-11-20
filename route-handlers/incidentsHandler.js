@@ -18,7 +18,7 @@ const incidentsHandler = (db, req, res) => {
 
   let endDate = req.query.end_date
     ? `${req.query.end_date}T23:59:59`
-    : '2999-10-30T23:57:08.000';
+    : '2019-10-30T23:57:08.000';
 
   let query = `SELECT * FROM Incidents WHERE date_time BETWEEN (?) AND (?) ORDER BY date_time DESC LIMIT (?)`;
 
