@@ -5,11 +5,14 @@ const newIncidentHandler = require('./route-handlers/newIncidentHandler');
 
 const sqlite3 = require('sqlite3');
 const express = require('express');
+const bodyParser = require('body-parser');
 const app = express();
 
 const PORT = 3000;
 
 const db = new sqlite3.Database('./db/stpaul_crime.sqlite3');
+
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('/codes', (req, res) => {
   codesHandler(db, req, res);

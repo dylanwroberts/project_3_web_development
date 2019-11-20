@@ -1,0 +1,55 @@
+const limit =
+    req.query.limit && req.query.limit < 10000 ? req.query.limit : 10000;
+  let query = 'SELECT * FROM Incidents';
+  let conditionals = [];
+  let results = {};
+
+  if (req.query.code) {
+    conditionals.push(
+      sqlHelper.createConditionals('code', req.query.code.split(','))
+    );
+  }
+
+  if (req.query.grid) {
+    conditionals.push(
+      sqlHelper.createConditionals('grid', req.query.grid.split(','))
+    );
+  }
+
+  if (req.query.id) {
+    conditionals.push(
+      sqlHelper.createConditionals(
+        'neighborhood_number',
+        req.query.id.split(',')
+      )
+    );
+  }
+
+  //check if any conditionals need to get added to the query
+  if (conditionals.length > 0) {
+    query += sqlHelper.linkTogether(conditionals);
+  }
+
+  db.all(query, (err, incidents) => {
+    incidents.forEach(incident => {
+      //array containing the date at index 0, time and index 1
+      let dateTime = incident.date_time.split('T');
+
+      //could check the date here to see if it's before/after the query parameter
+
+      results[`I${incident.case_number}`] = {
+        date: dateTime[0],
+        time: dateTime[1],
+        code: incident.code,
+        incident: incident.incident,
+        police_grid: incident.police_grid,
+        neighborhood_number: incident.neighborhood_number,
+        block: incident.block
+      };
+    });
+
+    if (req.query.format == 'xml') {
+      results = xmlconverter.parse(results);
+    }
+    res.send(results);
+  });
