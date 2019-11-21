@@ -4,9 +4,9 @@ const createConditionals = (property, arr) => {
 
   for (let i = 0; i < arr.length; i++) {
     if (i == arr.length - 1) {
-      result += `${property}="${arr[i]}"`;
+      result += `${property}=?`;
     } else {
-      result += `${property}="${arr[i]}" OR `;
+      result += `${property}=? OR `;
     }
   }
 

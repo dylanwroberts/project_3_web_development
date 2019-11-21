@@ -1,7 +1,16 @@
 const xmlconverter = require('js2xmlparser');
+const sqlHelper = require('../db/sql-helper');
 
 const codesHandler = (db, req, res) => {
-  db.all('SELECT * FROM Codes', (err, codes) => {
+  let query = 'SELECT * FROM Codes';
+
+  if (req.query.code) {
+    query +=
+      ' WHERE ' +
+      sqlHelper.createConditionals('code', req.query.code.split(','));
+  }
+
+  db.all(query, (err, codes) => {
     if (err) {
       console.error(err);
     } else {
@@ -10,16 +19,6 @@ const codesHandler = (db, req, res) => {
       for (code in codes) {
         let current = codes[code];
         results[`C${current.code}`] = current.incident_type;
-      }
-
-      if (req.query.code) {
-        let include = req.query.code.split(',');
-
-        for (result in results) {
-          if (!include.includes(result)) {
-            delete results[result];
-          }
-        }
       }
 
       if (req.query.format && req.query.format == 'xml') {
