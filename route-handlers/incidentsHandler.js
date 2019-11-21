@@ -32,7 +32,22 @@ const incidentsHandler = (db, req, res) => {
     if (err) {
       console.log(err);
     } else {
-      res.send(data);
+      let result = {};
+
+      for(row in data) {
+        let current = data[row];
+        result[`I${current.case_number}`] = {
+          date: current.date_time.split('T')[0],
+          time: current.date_time.split('T')[1],
+          code: current.code,
+          incident: current.incident,
+          police_grid: current.police_grid,
+          neighborhood_number: current.neighborhood_number,
+          block: current.block
+        }
+      }
+
+      res.send(result);
     }
   });
 };

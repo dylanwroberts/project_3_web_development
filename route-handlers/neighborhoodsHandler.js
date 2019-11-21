@@ -1,7 +1,19 @@
-/** @todo id - comma separated list of neighborhood numbers to include in result (e.g. ?id=11,14). By default all neighborhoods should be included. */
-/** @todo format - json or xml (e.g. ?format=xml). By default JSON format should be used. */
+const sqlHelper = require('../db/sql-helper');
+const xmlconverter = require('js2xmlparser');
+
 const neighborhoodsHandler = (db, req, res) => {
-  db.all('SELECT * FROM Neighborhoods', (err, neighborhoods) => {
+  let query = 'SELECT * FROM Neighborhoods';
+
+  if (req.query.id) {
+    query +=
+      ' WHERE ' +
+      sqlHelper.createConditionals(
+        'neighborhood_number',
+        req.query.id.split(',')
+      );
+  }
+
+  db.all(query, (err, neighborhoods) => {
     if (err) {
       console.error(err);
     } else {
@@ -11,6 +23,10 @@ const neighborhoodsHandler = (db, req, res) => {
         //create a key-value pair for the neighborhood in format: "N + neighborhood_number": "neighborhood_name"
         result[`N${neighborhoods[neighborhood].neighborhood_number}`] =
           neighborhoods[neighborhood].neighborhood_name;
+      }
+
+      if (req.query.format && req.query.format == 'xml') {
+        result = xmlconverter.parse('neighborhoodsList', result);
       }
       res.send(result);
     }
