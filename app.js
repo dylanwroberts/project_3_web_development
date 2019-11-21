@@ -8,7 +8,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 
-const PORT = 3000;
+const PORT = 8015;
 
 const db = new sqlite3.Database('./db/stpaul_crime.sqlite3');
 
