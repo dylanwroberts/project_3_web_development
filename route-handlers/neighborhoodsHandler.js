@@ -3,17 +3,15 @@ const xmlconverter = require('js2xmlparser');
 
 const neighborhoodsHandler = (db, req, res) => {
   let query = 'SELECT * FROM Neighborhoods';
+  let params = [];
 
   if (req.query.id) {
-    query +=
-      ' WHERE ' +
-      sqlHelper.createConditionals(
-        'neighborhood_number',
-        req.query.id.split(',')
-      );
+    let ids = req.query.id.split(',');
+    query += ' WHERE ' + sqlHelper.createConditionals('neighborhood_number', ids);
+    ids.forEach(id => { params.push(id); });
   }
 
-  db.all(query, (err, neighborhoods) => {
+  db.all(`${query} `, params, (err, neighborhoods) => {
     if (err) {
       console.error(err);
     } else {

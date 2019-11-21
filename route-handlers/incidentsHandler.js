@@ -22,21 +22,35 @@ const incidentsHandler = (db, req, res) => {
     ids.forEach(id => { params.push(id); });
   }
 
+  //if the results should be in a range
   if (req.query.start_date && req.query.end_date) {
     conditionals.push('date_time BETWEEN (?) AND (?)');
-    params.push(req.query.start_date);
-    params.push(req.query.end_date);
+    //T:23:59:59 is added to these because we still want to include incidents on that day
+    params.push(req.query.start_date + 'T23:59:59');
+    params.push(req.query.end_date + 'T23:59:59');
   } 
+  //if the results should come after a date
   else if (req.query.start_date) {
     conditionals.push('date_time >= (?)');
-    params.push(req.query.start_date);
-  } 
+    //T:23:59:59 is added to these because we still want to include incidents on that day
+    params.push(req.query.start_date + 'T23:59:59');
+  }
   else if (req.query.end_date) {
     conditionals.push('date_time <= (?)');
-    params.push(req.query.end_date);
+    //T:23:59:59 is added to these because we still want to include incidents on that day
+    params.push(req.query.end_date + 'T23:59:59');
   }
 
-  let query = 'SELECT * FROM Incidents' + sqlHelper.linkTogether(conditionals);
+  //push limit onto the params array since it's always present
+  params.push(req.query.limit < 10000 ? req.query.limit : 10000);
+
+  let query;
+  if(conditionals.length > 0) {
+    query = 'SELECT * FROM Incidents' + sqlHelper.linkTogether(conditionals) + ' ORDER BY date_time DESC LIMIT (?)';
+  }
+  else {
+    query = 'SELECT * FROM Incidents ORDER BY date_time DESC LIMIT (?)';
+  }
 
   db.all(query, params, (err, data) => {
     if (err) {
