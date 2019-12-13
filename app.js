@@ -13,6 +13,10 @@ const PORT = process.env.PORT;
 const db = new sqlite3.Database('./db/stpaul_crime.sqlite3');
 
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  next();
+});
 
 app.get('/codes', (req, res) => {
   codesHandler(db, req, res);
